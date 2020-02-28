@@ -1,0 +1,2 @@
+# gendoc
+golang generate document
