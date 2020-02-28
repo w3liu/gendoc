@@ -1,14 +1,12 @@
-# gendoc
+package markdown
 
-文档生成工具
+import (
+	"encoding/json"
+	"fmt"
+	"github.com/w3liu/gendoc"
+	"testing"
+)
 
-## MarkDown生成说明
-
-### 示例
-
-```go
-// doc是字段说明
-// 如果是必填項，doc里填写 required 即可，注意required前面需要加空格
 type ReqCreateOrder struct {
 	Pass       string  `json:"pass" doc:"交易密码不能为空，请用BASE64 进行转码 required"`
 	Amount     float32 `json:"amount" doc:"支付金额，不能小于或等于0"`
@@ -25,6 +23,17 @@ type RespCreateOrder struct {
 	Data interface{} `json:"data" doc:"业务数据"`
 }
 
+func TestGenDoc(t *testing.T) {
+	doc := &gendoc.Document{}
+	doc.AddItem("创建订单接口", "/v1/order/create", gendoc.POST, gendoc.Tomas, &ReqCreateOrder{}, &RespCreateOrder{Data: &ReqCreateOrder{}})
+	doc.GenerateFields()
+	list := doc.GetList()
+	b, err := json.Marshal(list)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(string(b))
+}
 
 func TestGenMarkDown(t *testing.T) {
 	// 实例化文档
@@ -42,6 +51,3 @@ func TestGenMarkDown(t *testing.T) {
 	// 生成文档
 	md.Generate("./doc.md")
 }
-```
-
-[demo](./markdown/doc.md)
