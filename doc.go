@@ -138,7 +138,13 @@ func createFields(param interface{}) []Field {
 		if field.Kind == "int" && strings.Contains(ty.Tag.Get("json"), ",string") {
 			field.Kind = "string"
 		}
-		fields = append(fields, field)
+		//如果是内嵌结构体
+		if ty.Anonymous {
+			subFields := createFields(fd.Interface())
+			fields = append(fields, subFields...)
+		} else {
+			fields = append(fields, field)
+		}
 	}
 	return fields
 }
