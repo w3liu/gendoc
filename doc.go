@@ -126,7 +126,7 @@ func createFields(param interface{}) []Field {
 			Description: getDescription(ty),
 			List:        nil,
 		}
-		if field.Kind == "interface" || field.Kind == "slice" {
+		if field.Kind == "interface" || field.Kind == "slice" || field.Kind == "struct" {
 			subFields := createFields(fd.Interface())
 			field.List = subFields
 		}
