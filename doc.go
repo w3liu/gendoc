@@ -126,9 +126,17 @@ func createFields(param interface{}) []Field {
 			Description: getDescription(ty),
 			List:        nil,
 		}
-		if field.Kind == "interface" || field.Kind == "slice" || field.Kind == "struct" {
+		if field.Kind == "interface" || field.Kind == "struct"{
 			subFields := createFields(fd.Interface())
 			field.List = subFields
+		}
+		if field.Kind == "slice"{
+			subFields := createFields(fd.Slice(0,1).Interface())
+			field.List = subFields
+		}
+		// 如果是数字型字符串 例 Id int `json:"id,string"`
+		if field.Kind == "int" && strings.Contains(ty.Tag.Get("json"), ",string"){
+			field.Kind = "string"
 		}
 		fields = append(fields, field)
 	}
