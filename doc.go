@@ -131,8 +131,22 @@ func createFields(param interface{}) []Field {
 			field.List = subFields
 		}
 		if field.Kind == "slice" {
-			subFields := createFields(fd.Slice(0, 1).Interface())
-			field.List = subFields
+			switch fd.Index(0).Interface().(type){
+			case string:
+				field.Kind = "字符串数组"
+			case int:
+				field.Kind = "整型数组"
+			case bool:
+				field.Kind = "布尔数组"
+			case float64:
+				field.Kind = "浮点型数组"
+			case float32:
+				field.Kind = "浮点型数组"
+			default:	//结构体
+				field.Kind = "结构体数组"
+				subFields := createFields(fd.Interface())
+				field.List = subFields
+			}
 		}
 		// 如果是数字型字符串 例 Id int `json:"id,string"`
 		if field.Kind == "int" && strings.Contains(ty.Tag.Get("json"), ",string") {
