@@ -126,11 +126,39 @@ func createFields(param interface{}) []Field {
 			Description: getDescription(ty),
 			List:        nil,
 		}
-		if field.Kind == "interface" || field.Kind == "slice" {
+		if field.Kind == "interface" || field.Kind == "struct" {
 			subFields := createFields(fd.Interface())
 			field.List = subFields
 		}
-		fields = append(fields, field)
+		if field.Kind == "slice" {
+			switch fd.Index(0).Interface().(type){
+			case string:
+				field.Kind = "字符串数组"
+			case int:
+				field.Kind = "整型数组"
+			case bool:
+				field.Kind = "布尔数组"
+			case float64:
+				field.Kind = "浮点型数组"
+			case float32:
+				field.Kind = "浮点型数组"
+			default:	//结构体
+				field.Kind = "结构体数组"
+				subFields := createFields(fd.Interface())
+				field.List = subFields
+			}
+		}
+		// 如果是数字型字符串 例 Id int `json:"id,string"`
+		if field.Kind == "int" && strings.Contains(ty.Tag.Get("json"), ",string") {
+			field.Kind = "string"
+		}
+		//如果是内嵌结构体
+		if ty.Anonymous {
+			subFields := createFields(fd.Interface())
+			fields = append(fields, subFields...)
+		} else {
+			fields = append(fields, field)
+		}
 	}
 	return fields
 }
